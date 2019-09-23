@@ -74,12 +74,16 @@ struct node {
   byte *bytes_;
 
   node()
-      : bytes_(NULL) {}
+      : bytes_(NULL) {
+  }
 
   node(byte *bytes)
-      : bytes_(bytes) {}
+      : bytes_(bytes) {
+  }
 
-  node_type get_type() const { return static_cast<node_type>(bytes_[0]); }
+  node_type get_type() const {
+    return static_cast<node_type>(bytes_[0]);
+  }
 
   const char *get_name() const {
     return reinterpret_cast<const char *>(bytes_ + 1);
@@ -120,7 +124,9 @@ struct node {
     return result;
   }
 
-  void *get_data() const { return bytes_ + 1U + strlen(get_name()) + 1U; }
+  void *get_data() const {
+    return bytes_ + 1U + strlen(get_name()) + 1U;
+  }
 
   bool valid(size_t size) const {
     return (size >= 2) && (get_size() <= size) && get_size() != 0;
@@ -208,10 +214,12 @@ private:
 
 public:
   document()
-      : bytes_(NULL) {}
+      : bytes_(NULL) {
+  }
 
   document(void *bytes, size_t = 0)
-      : bytes_(reinterpret_cast<byte *>(bytes)) {}
+      : bytes_(reinterpret_cast<byte *>(bytes)) {
+  }
 
   bool valid() const {
     return bytes_ &&

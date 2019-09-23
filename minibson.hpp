@@ -34,13 +34,18 @@ using node_t = std::unique_ptr<minibson::node>;
 class node {
 public:
   node() = default;
-  virtual ~node() {}
+  virtual ~node() {
+  }
   virtual void   serialize(void *const buffer, const size_t count) const = 0;
   virtual size_t get_serialized_size() const                             = 0;
-  virtual unsigned char get_node_code() const { return 0; }
-  virtual node_t        copy() const               = 0;
-  virtual void          dump(std::ostream &) const = 0;
-  virtual void          dump(std::ostream &stream, int) const { dump(stream); }
+  virtual unsigned char get_node_code() const {
+    return 0;
+  }
+  virtual node_t copy() const               = 0;
+  virtual void   dump(std::ostream &) const = 0;
+  virtual void   dump(std::ostream &stream, int) const {
+    dump(stream);
+  }
   static node_t
   create(node_type type, const void *const buffer, const size_t count);
 
@@ -52,19 +57,30 @@ public:
 
 class null : public node {
 public:
-  null() {}
+  null() {
+  }
 
-  null(const void *const, const size_t) {}
+  null(const void *const, const size_t) {
+  }
 
-  void serialize(void *const, const size_t) const {}
+  void serialize(void *const, const size_t) const {
+  }
 
-  size_t get_serialized_size() const { return 0; }
+  size_t get_serialized_size() const {
+    return 0;
+  }
 
-  unsigned char get_node_code() const { return null_node; }
+  unsigned char get_node_code() const {
+    return null_node;
+  }
 
-  node_t copy() const { return node_t{}; }
+  node_t copy() const {
+    return node_t{};
+  }
 
-  void dump(std::ostream &stream) const { stream << "null"; };
+  void dump(std::ostream &stream) const {
+    stream << "null";
+  };
 };
 
 template <typename T, node_type N>
@@ -74,7 +90,8 @@ private:
 
 public:
   scalar(const T value)
-      : value_(value) {}
+      : value_(value) {
+  }
 
   scalar(const void *const buffer, const size_t count = 0) {
     (void)count;
@@ -86,21 +103,32 @@ public:
     *reinterpret_cast<T *>(buffer) = value_;
   }
 
-  size_t get_serialized_size() const { return sizeof(T); }
+  size_t get_serialized_size() const {
+    return sizeof(T);
+  }
 
-  unsigned char get_node_code() const { return N; }
+  unsigned char get_node_code() const {
+    return N;
+  }
 
-  node_t copy() const { return node_t{new scalar<T, N>(value_)}; }
+  node_t copy() const {
+    return node_t{new scalar<T, N>(value_)};
+  }
 
-  void dump(std::ostream &stream) const { stream << value_; };
+  void dump(std::ostream &stream) const {
+    stream << value_;
+  };
 
-  const T &get_value() const { return value_; }
+  const T &get_value() const {
+    return value_;
+  }
 };
 
 class int32 : public scalar<int, int32_node> {
 public:
   int32(const int value)
-      : scalar<int, int32_node>(value) {}
+      : scalar<int, int32_node>(value) {
+  }
 
   int32(const void *const buffer, const size_t count)
       : scalar<int, int32_node>(buffer, count){};
@@ -115,7 +143,8 @@ struct type_converter<int> {
 class int64 : public scalar<long long int, int64_node> {
 public:
   int64(const long long int value)
-      : scalar<long long int, int64_node>(value) {}
+      : scalar<long long int, int64_node>(value) {
+  }
 
   int64(const void *const buffer, const size_t count)
       : scalar<long long int, int64_node>(buffer, count){};
@@ -130,7 +159,8 @@ struct type_converter<long long int> {
 class Double : public scalar<double, double_node> {
 public:
   Double(const double value)
-      : scalar<double, double_node>(value) {}
+      : scalar<double, double_node>(value) {
+  }
 
   Double(const void *const buffer, const size_t count)
       : scalar<double, double_node>(buffer, count){};
@@ -148,9 +178,11 @@ private:
 
 public:
   explicit string(const std::string &value)
-      : value_(value) {}
+      : value_(value) {
+  }
   explicit string(std::string &&value)
-      : value_{std::move(value)} {}
+      : value_{std::move(value)} {
+  }
 
   string(const void *const buffer, const size_t count) {
     if (count >= 5) {
@@ -175,13 +207,21 @@ public:
     return sizeof(unsigned int) + value_.length() + 1;
   }
 
-  unsigned char get_node_code() const { return string_node; }
+  unsigned char get_node_code() const {
+    return string_node;
+  }
 
-  node_t copy() const { return node_t{new string(value_)}; }
+  node_t copy() const {
+    return node_t{new string(value_)};
+  }
 
-  void dump(std::ostream &stream) const { stream << "\"" << value_ << "\""; };
+  void dump(std::ostream &stream) const {
+    stream << "\"" << value_ << "\"";
+  };
 
-  const std::string &get_value() const { return value_; }
+  const std::string &get_value() const {
+    return value_;
+  }
 };
 
 template <>
@@ -196,7 +236,8 @@ private:
 
 public:
   explicit boolean(const bool value)
-      : value_(value) {}
+      : value_(value) {
+  }
 
   boolean(const void *const buffer, const size_t count = 0) {
     (void)count;
@@ -215,17 +256,25 @@ public:
     *reinterpret_cast<unsigned char *>(buffer) = value_ ? true : false;
   }
 
-  size_t get_serialized_size() const { return 1; }
+  size_t get_serialized_size() const {
+    return 1;
+  }
 
-  unsigned char get_node_code() const { return boolean_node; }
+  unsigned char get_node_code() const {
+    return boolean_node;
+  }
 
-  node_t copy() const { return node_t{new boolean(value_)}; }
+  node_t copy() const {
+    return node_t{new boolean(value_)};
+  }
 
   void dump(std::ostream &stream) const {
     stream << (value_ ? "true" : "false");
   };
 
-  const bool &get_value() const { return value_; }
+  const bool &get_value() const {
+    return value_;
+  }
 };
 
 template <>
@@ -250,7 +299,8 @@ public:
       return *this;
     }
     explicit buffer(std::vector<uint8_t> &&rhs)
-        : data{rhs} {}
+        : data{rhs} {
+    }
 
     buffer(const void *buf, size_t length)
         : data(length) {
@@ -269,10 +319,12 @@ private:
 
 public:
   explicit binary(const buffer &buf)
-      : value_{buf} {}
+      : value_{buf} {
+  }
 
   explicit binary(buffer &&buf)
-      : value_{std::move(buf)} {}
+      : value_{std::move(buf)} {
+  }
 
   /**\brief if flag create set to true, then create new buffer from input data
    * (buffer, count). Otherwise deserialize bson data from buffer
@@ -305,13 +357,21 @@ public:
     return sizeof(uint) + 1 + value_.data.size();
   }
 
-  unsigned char get_node_code() const { return binary_node; }
+  unsigned char get_node_code() const {
+    return binary_node;
+  }
 
-  node_t copy() const { return node_t{new binary(value_)}; }
+  node_t copy() const {
+    return node_t{new binary(value_)};
+  }
 
-  void dump(std::ostream &stream) const { value_.dump(stream); };
+  void dump(std::ostream &stream) const {
+    value_.dump(stream);
+  };
 
-  const buffer &get_value() const { return value_; }
+  const buffer &get_value() const {
+    return value_;
+  }
 };
 
 template <>
@@ -328,7 +388,8 @@ class element_list
 public:
   typedef std::map<std::string, node_t>::const_iterator const_iterator;
 
-  element_list() {}
+  element_list() {
+  }
 
   element_list(const element_list &other)
       : std::map<std::string, node_t>{}
@@ -339,7 +400,8 @@ public:
   }
 
   element_list(element_list &&rhs)
-      : std::map<std::string, node_t>{std::move(rhs)} {}
+      : std::map<std::string, node_t>{std::move(rhs)} {
+  }
 
   element_list(const void *const buffer, const size_t count) {
     const unsigned char *byte_buffer =
@@ -347,7 +409,8 @@ public:
     size_t position = 0;
 
     while (position < count) {
-      node_type   type = static_cast<node_type>(byte_buffer[position++]);
+      minibson::node_type type =
+          static_cast<minibson::node_type>(byte_buffer[position++]);
       std::string name(reinterpret_cast<const char *>(byte_buffer + position));
 
       position += name.length() + 1;
@@ -389,7 +452,9 @@ public:
     return result;
   }
 
-  node_t copy() const { return node_t{new element_list(*this)}; }
+  node_t copy() const {
+    return node_t{new element_list(*this)};
+  }
 
   void dump(std::ostream &stream) const {
     stream << "{ ";
@@ -435,7 +500,9 @@ public:
     return std::map<std::string, node_t>::begin();
   }
 
-  const_iterator end() const { return std::map<std::string, node_t>::end(); }
+  const_iterator end() const {
+    return std::map<std::string, node_t>::end();
+  }
 
   bool contains(const std::string &key) const {
     return (std::map<std::string, node_t>::find(key) != end());
@@ -448,12 +515,14 @@ public:
                                    type_converter<T>::node_type_code);
   }
 
-  ~element_list() {}
+  ~element_list() {
+  }
 };
 
 class document : public element_list {
 public:
-  document() {}
+  document() {
+  }
 
   document(const document &) = default;
   document(document &&)      = default;
@@ -487,15 +556,19 @@ public:
     return 4 + element_list::get_serialized_size() + 1;
   }
 
-  unsigned char get_node_code() const { return document_node; }
+  unsigned char get_node_code() const {
+    return document_node;
+  }
 
-  node_t copy() const { return node_t{new document(*this)}; }
+  node_t copy() const {
+    return node_t{new document(*this)};
+  }
 
   template <typename result_type>
   const result_type &get(const std::string &key,
                          const result_type &_default) const {
-    const node_type node_type_code =
-        static_cast<node_type>(type_converter<result_type>::node_type_code);
+    const minibson::node_type node_type_code = static_cast<minibson::node_type>(
+        type_converter<result_type>::node_type_code);
     typedef typename type_converter<result_type>::node_class node_class;
 
     auto founded = this->find(key);
